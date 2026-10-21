@@ -1,0 +1,57 @@
+# Topologia sieci Zigbee dla scenariusza ns-3 (zigbee-profile-gen.cc).
+# Zgodna z sim/network_profile.json: te same nazwy urządzeń i te same liczby hopów od koordynatora.
+#
+# Format (separator przecinek, komentarz od znaku #):
+#   node,<nazwa>,<coordinator|router|enddevice>[,<probe 0|1>]
+#       router: urządzenie zasilane z sieci, przekazuje ruch (wtyczki, żarówki).
+#       enddevice: urządzenie końcowe (czujniki bateryjne), łączy się z routerem lub koordynatorem,
+#                  nie przekazuje ruchu i nie uczestniczy w wykrywaniu tras. Mierzymy je tylko
+#                  w górę (czujniki nie odbierają poleceń asynchronicznie, a ns-3 nie ma pollingu).
+#       probe=1 (domyślnie): węzeł jest mierzony i trafia do wyników.
+#       probe=0: węzeł tylko przekazuje ruch (przekaźnik, nie ma go w profilu symulatora).
+#   link,<węzeł A>,<węzeł B>,<tłumienie łącza w dB>
+#       Tylko wymienione pary się słyszą (macierz tłumień), wszystkie pozostałe są poza zasięgiem.
+#       To ŚREDNIE tłumienie; szybki zanik (opcja --fading) losuje moc odbioru dla każdej ramki.
+#       Przy domyślnym zaniku m=1.5 łącza do ok. 95 dB są praktycznie bezstratne, a ok. 105-108 dB
+#       to granica użyteczności (patrz calibrate_link.sh). Moc nadawania lr-wpan = 0 dBm.
+#
+# UWAGA: poniższe tłumienia są ZAŁOŻENIAMI, a nie pomiarami. Wyniki symulacji są tak wiarygodne,
+# jak te wartości. Dla artykułu skalibruj je na podstawie RSSI/LQI z prawdziwej sieci
+# (np. mapa sieci i linkquality w Zigbee2MQTT).
+#
+# Dlaczego czujniki są urządzeniami końcowymi: gdy w teście wszystkie węzły były routerami,
+# model ns-3 3.44 zbudował pętlę routingu (pakiet krążył między dwoma routerami), co zafałszowało
+# opóźnienia i straty. Czujniki bateryjne w prawdziwej Zigbee i tak są urządzeniami końcowymi.
+# Przy modyfikacji topologii sprawdź tablice tras opcją --dump.
+#
+# Schemat (liczby w nawiasach to hopy od koordynatora):
+#
+#   [R] router, [E] urządzenie końcowe
+#
+#   coordinator --- tv_plug [R] (1) ------- bedroom_climate [E] (2)
+#        |               |----------------- front_door_contact [E] (2)
+#        |               '----------------- hall_bulb [R] (2, przekaźnik) --- hallway_motion [E] (3)
+#        |                                              '------------------- garage_plug [R] (3) --- balcony_door_contact [E] (4)
+#        |------- living_room_climate [E] (1)
+#        '------- kitchen_motion [E] (1)
+
+node,coordinator,coordinator
+node,tv_plug,router
+node,living_room_climate,enddevice
+node,kitchen_motion,enddevice
+node,bedroom_climate,enddevice
+node,front_door_contact,enddevice
+node,hall_bulb,router,0
+node,hallway_motion,enddevice
+node,garage_plug,router
+node,balcony_door_contact,enddevice
+
+link,coordinator,tv_plug,80
+link,coordinator,living_room_climate,84
+link,coordinator,kitchen_motion,90
+link,tv_plug,bedroom_climate,92
+link,tv_plug,front_door_contact,96
+link,tv_plug,hall_bulb,95
+link,hall_bulb,hallway_motion,100
+link,hall_bulb,garage_plug,102
+link,garage_plug,balcony_door_contact,105

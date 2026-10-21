@@ -1,0 +1,16 @@
+{
+  "_comment": "Profil sieci dla symulatora. Wartości domyślne poniżej możesz zastąpić wynikami z ns-3 (per urządzenie: hops, latency_ms, latency_jitter_ms, loss).",
+  "latency_ms_per_hop": { "mean": 12, "jitter": 5 },
+  "loss_per_hop": 0.01,
+  "linkquality": { "base": 255, "drop_per_hop": 40 },
+  "devices": [
+    { "name": "living_room_climate", "type": "climate_sensor", "hops": 1 },
+    { "name": "bedroom_climate", "type": "climate_sensor", "hops": 2 },
+    { "name": "kitchen_motion", "type": "motion_sensor", "hops": 1, "events_per_hour": 20 },
+    { "name": "hallway_motion", "type": "motion_sensor", "hops": 3, "events_per_hour": 12, "occupancy_timeout_s": 30 },
+    { "name": "front_door_contact", "type": "contact_sensor", "hops": 2, "events_per_hour": 4 },
+    { "name": "balcony_door_contact", "type": "contact_sensor", "hops": 4, "events_per_hour": 2 },
+    { "name": "tv_plug", "type": "smart_plug", "hops": 1, "initial_state": "ON", "load_w": 90 },
+    { "name": "garage_plug", "type": "smart_plug", "hops": 3, "load_w": 40, "loss": 0.05, "latency_ms": 60, "latency_jitter_ms": 20 }
+  ]
+}

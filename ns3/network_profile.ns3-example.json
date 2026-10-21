@@ -1,0 +1,196 @@
+{
+  "_comment": "Profil sieci dla symulatora. Wartości domyślne poniżej możesz zastąpić wynikami z ns-3 (per urządzenie: hops, latency_ms, latency_jitter_ms, loss).",
+  "latency_ms_per_hop": {
+    "mean": 4.27,
+    "jitter": 1.01
+  },
+  "loss_per_hop": 0.0004,
+  "linkquality": {
+    "base": 255,
+    "drop_per_hop": 40
+  },
+  "devices": [
+    {
+      "name": "living_room_climate",
+      "type": "climate_sensor",
+      "hops": 1,
+      "latency_ms": 2.84,
+      "latency_jitter_ms": 0.73,
+      "loss": 0.0,
+      "_ns3": {
+        "samples": 1200,
+        "latency_p50_ms": 2.72,
+        "latency_p95_ms": 4.0,
+        "latency_max_ms": 4.0,
+        "loss_ci95": [
+          0.0,
+          0.0032
+        ],
+        "first_packet_ms": 2.93
+      }
+    },
+    {
+      "name": "bedroom_climate",
+      "type": "climate_sensor",
+      "hops": 2,
+      "latency_ms": 6.54,
+      "latency_jitter_ms": 1.08,
+      "loss": 0.0,
+      "_ns3": {
+        "samples": 1200,
+        "latency_p50_ms": 6.5,
+        "latency_p95_ms": 8.1,
+        "latency_max_ms": 11.68,
+        "loss_ci95": [
+          0.0,
+          0.0032
+        ],
+        "first_packet_ms": 6.46
+      }
+    },
+    {
+      "name": "kitchen_motion",
+      "type": "motion_sensor",
+      "hops": 1,
+      "events_per_hour": 20,
+      "latency_ms": 2.89,
+      "latency_jitter_ms": 0.77,
+      "loss": 0.0,
+      "_ns3": {
+        "samples": 1200,
+        "latency_p50_ms": 2.72,
+        "latency_p95_ms": 4.0,
+        "latency_max_ms": 7.58,
+        "loss_ci95": [
+          0.0,
+          0.0032
+        ],
+        "first_packet_ms": 2.86
+      }
+    },
+    {
+      "name": "hallway_motion",
+      "type": "motion_sensor",
+      "hops": 3,
+      "events_per_hour": 12,
+      "occupancy_timeout_s": 30,
+      "latency_ms": 10.44,
+      "latency_jitter_ms": 1.76,
+      "loss": 0.0,
+      "_ns3": {
+        "samples": 1200,
+        "latency_p50_ms": 10.27,
+        "latency_p95_ms": 13.54,
+        "latency_max_ms": 23.58,
+        "loss_ci95": [
+          0.0,
+          0.0032
+        ],
+        "first_packet_ms": 112.42
+      }
+    },
+    {
+      "name": "front_door_contact",
+      "type": "contact_sensor",
+      "hops": 2,
+      "events_per_hour": 4,
+      "latency_ms": 6.57,
+      "latency_jitter_ms": 1.22,
+      "loss": 0.0,
+      "_ns3": {
+        "samples": 1200,
+        "latency_p50_ms": 6.5,
+        "latency_p95_ms": 8.42,
+        "latency_max_ms": 12.64,
+        "loss_ci95": [
+          0.0,
+          0.0032
+        ],
+        "first_packet_ms": 6.39
+      }
+    },
+    {
+      "name": "balcony_door_contact",
+      "type": "contact_sensor",
+      "hops": 4,
+      "events_per_hour": 2,
+      "latency_ms": 16.3,
+      "latency_jitter_ms": 3.68,
+      "loss": 0.0117,
+      "_ns3": {
+        "samples": 1200,
+        "latency_p50_ms": 15.39,
+        "latency_p95_ms": 23.46,
+        "latency_max_ms": 36.51,
+        "loss_ci95": [
+          0.007,
+          0.0195
+        ],
+        "first_packet_ms": 16.66
+      }
+    },
+    {
+      "name": "tv_plug",
+      "type": "smart_plug",
+      "hops": 1,
+      "initial_state": "ON",
+      "load_w": 90,
+      "latency_ms": 2.91,
+      "latency_jitter_ms": 0.74,
+      "loss": 0.0,
+      "_ns3": {
+        "samples": 1200,
+        "latency_p50_ms": 3.04,
+        "latency_p95_ms": 4.0,
+        "latency_max_ms": 4.0,
+        "loss_ci95": [
+          0.0,
+          0.0032
+        ],
+        "first_packet_ms": 2.87,
+        "down": {
+          "samples": 1200,
+          "loss": 0.0,
+          "latency_ms": 2.88,
+          "latency_jitter_ms": 0.73
+        }
+      }
+    },
+    {
+      "name": "garage_plug",
+      "type": "smart_plug",
+      "hops": 3,
+      "load_w": 40,
+      "loss": 0.0,
+      "latency_ms": 10.88,
+      "latency_jitter_ms": 2.34,
+      "_ns3": {
+        "samples": 1200,
+        "latency_p50_ms": 10.27,
+        "latency_p95_ms": 15.78,
+        "latency_max_ms": 26.46,
+        "loss_ci95": [
+          0.0,
+          0.0032
+        ],
+        "first_packet_ms": 156.42,
+        "down": {
+          "samples": 1200,
+          "loss": 0.0,
+          "latency_ms": 10.65,
+          "latency_jitter_ms": 2.08
+        }
+      }
+    }
+  ],
+  "_ns3": {
+    "source": "batch.csv",
+    "runs": 40,
+    "rows": 12400,
+    "scenario_header": [
+      "merged_runs=40; parametry pierwszego przebiegu poniżej",
+      "zigbee-profile-gen fading=1.5 mode=isolated probes=30 warmup=1 slot=0.25 interval=2 payload=20 timeout=5 seed=1 run=1"
+    ],
+    "note": "Wartości latency_ms / latency_jitter_ms / loss pochodzą z symulacji ns-3 (uplink, bez sond rozgrzewkowych) przy ZAŁOŻONYCH tłumieniach łączy z topology.csv."
+  }
+}

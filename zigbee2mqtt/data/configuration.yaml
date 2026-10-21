@@ -1,0 +1,14 @@
+# Używane tylko z profilem "hardware" (docker compose --profile hardware up -d).
+# Sprawdź w dokumentacji Zigbee2MQTT format sekcji homeassistant dla swojej wersji.
+homeassistant:
+  enabled: true
+mqtt:
+  base_topic: zigbee2mqtt
+  server: mqtt://mosquitto:1883
+serial:
+  port: /dev/ttyUSB0
+frontend:
+  enabled: true
+  port: 8080
+advanced:
+  log_level: info

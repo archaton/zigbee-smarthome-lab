@@ -1,0 +1,139 @@
+name: zigbee-smarthome-lab
+
+# Stos laboratoryjny: symulowane urządzenia Zigbee (poziom MQTT) + smart home + zbieranie metryk.
+# Uruchomienie:            docker compose up -d --build
+# Z prawdziwym koordynatorem: docker compose --profile hardware up -d --build
+#
+# Dla powtarzalności badań (artykuł) przypnij wersje obrazów zamiast :latest / :stable
+# (sprawdź: docker compose images), a ich numery wpisz do metodologii.
+
+services:
+
+  # --- Broker MQTT: wspólna szyna dla symulatora, Home Assistant, Node-RED i Telegrafa ---
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_log:/mosquitto/log
+
+  # --- Symulator urządzeń Zigbee (format wiadomości jak w Zigbee2MQTT) ---
+  zigbee-sim:
+    build: ./sim
+    container_name: zigbee-sim
+    restart: unless-stopped
+    depends_on:
+      - mosquitto
+    environment:
+      MQTT_HOST: mosquitto
+      MQTT_PORT: "1883"
+      SIM_BASE_TOPIC: zigbee2mqtt
+      SIM_REPORT_INTERVAL: "30"   # sekundy między raportami czujników
+      # SIM_SEED: "42"            # odkomentuj dla powtarzalnych przebiegów
+    volumes:
+      - ./sim/network_profile.json:/app/network_profile.json:ro
+      - ./sim/logs:/logs
+
+  # --- Smart home ---
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:stable
+    container_name: homeassistant
+    restart: unless-stopped
+    depends_on:
+      - mosquitto
+    ports:
+      - "8123:8123"
+    environment:
+      TZ: ${TZ}
+    volumes:
+      - ./homeassistant/config:/config
+
+  # --- Dodatkowe scenariusze, własne przepływy, wstrzykiwanie zdarzeń ---
+  nodered:
+    image: nodered/node-red:latest
+    container_name: nodered
+    restart: unless-stopped
+    depends_on:
+      - mosquitto
+    ports:
+      - "1880:1880"
+    environment:
+      TZ: ${TZ}
+    volumes:
+      - ./nodered/data:/data
+
+  # --- Metryki: MQTT -> Telegraf -> InfluxDB -> Grafana ---
+  influxdb:
+    image: influxdb:2
+    container_name: influxdb
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: ${INFLUX_USER}
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUX_PASSWORD}
+      DOCKER_INFLUXDB_INIT_ORG: ${INFLUX_ORG}
+      DOCKER_INFLUXDB_INIT_BUCKET: ${INFLUX_BUCKET}
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUX_TOKEN}
+    volumes:
+      - influx_data:/var/lib/influxdb2
+
+  telegraf:
+    image: telegraf:latest
+    container_name: telegraf
+    restart: unless-stopped
+    depends_on:
+      - mosquitto
+      - influxdb
+    environment:
+      INFLUX_TOKEN: ${INFLUX_TOKEN}
+      INFLUX_ORG: ${INFLUX_ORG}
+      INFLUX_BUCKET: ${INFLUX_BUCKET}
+    volumes:
+      - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    depends_on:
+      - influxdb
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
+      INFLUX_TOKEN: ${INFLUX_TOKEN}
+      INFLUX_ORG: ${INFLUX_ORG}
+      INFLUX_BUCKET: ${INFLUX_BUCKET}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+
+  # --- Opcjonalnie: prawdziwy koordynator Zigbee (test hybrydowy) ---
+  zigbee2mqtt:
+    image: koenkk/zigbee2mqtt:latest
+    container_name: zigbee2mqtt
+    profiles: ["hardware"]
+    restart: unless-stopped
+    depends_on:
+      - mosquitto
+    ports:
+      - "8080:8080"
+    environment:
+      TZ: ${TZ}
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0   # zmień na ścieżkę swojego dongla (ls /dev/serial/by-id/)
+    volumes:
+      - ./zigbee2mqtt/data:/app/data
+
+volumes:
+  mosquitto_data:
+  mosquitto_log:
+  influx_data:
+  grafana_data:
