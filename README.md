@@ -24,7 +24,11 @@ urządzenia (zigbee-sim) ──MQTT──> mosquitto ──> Home Assistant   (a
 
 ## Start
 
+Przed pierwszym uruchomieniem skopiuj `.env.example` jako `.env` i zmień w nim hasła oraz token
+(`.env` nie trafia do repozytorium):
+
 ```bash
+cp .env.example .env
 docker compose up -d --build
 docker compose logs -f zigbee-sim
 ```
@@ -86,3 +90,7 @@ Prawdziwe urządzenia i symulowane współistnieją na tym samym brokerze (inne 
 - Przypnij wersje obrazów (`docker compose images`) i zapisz je w metodologii.
 - Zmień hasła i token w `.env`. Broker MQTT jest otwarty, więc nie wystawiaj go poza sieć lokalną.
 - Format wiadomości odwzorowuje Zigbee2MQTT, ale to przybliżenie. Porównaj z wiadomościami prawdziwych urządzeń.
+
+## Licencja
+
+MIT, patrz [LICENSE](LICENSE).
