@@ -1,5 +1,5 @@
 {
-  "_comment": "Profil sieci dla symulatora. Wartości domyślne poniżej możesz zastąpić wynikami z ns-3 (per urządzenie: hops, latency_ms, latency_jitter_ms, loss).",
+  "_comment": "Profil sieci dla symulatora. Wartości domyślne poniżej możesz zastąpić wynikami z ns-3 (per urządzenie: hops, latency_ms, latency_jitter_ms, loss). Opcjonalnie per urządzenie: loss_down (utrata polecenia w dół, domyślnie jak loss), optimistic (true/false, nadpisuje SIM_SET_MODE), availability_timeout_s (0 wyłącza).",
   "latency_ms_per_hop": { "mean": 12, "jitter": 5 },
   "loss_per_hop": 0.01,
   "linkquality": { "base": 255, "drop_per_hop": 40 },

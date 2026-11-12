@@ -42,6 +42,27 @@ W Home Assistant po pierwszym uruchomieniu: Ustawienia → Urządzenia i usługi
   polecenia z Home Assistanta).
 - Urządzenia i parametry sieci: `sim/network_profile.json`. Po zmianie: `docker compose restart zigbee-sim`.
 - Powtarzalność: odkomentuj `SIM_SEED` w `docker-compose.yml`.
+- Polecenia (jak w Zigbee2MQTT): `zigbee2mqtt/<nazwa>/set` (JSON), `…/set/state` (sam tekst, np. `ON`) i
+  `…/get` (`{"state": ""}`). Czujniki bateryjne ich nie przyjmują.
+- Stan po `/set` (`SIM_SET_MODE`):
+  - `optimistic` (domyślnie, jak `optimistic: true` w Z2M): nowy stan trafia na MQTT od razu, a potwierdzenie
+    z urządzenia dochodzi później przez model sieci. Jeśli polecenie zginie w dół, bramka dalej "wie" o nowym
+    stanie, a urządzenie się nie zmieni, dopóki nie przyjdzie następny raport.
+  - `confirmed`: stan jest publikowany dopiero po potwierdzeniu (opóźnienie w dół + w górę). Przy pomiarze
+    opóźnienia polecenie → stan użyj tego trybu, a w prawdziwym Z2M ustaw `optimistic: false`.
+  Tryb można nadpisać per urządzenie kluczem `optimistic` w profilu.
+- Utrata w dół: `loss_down` per urządzenie w profilu (domyślnie jak `loss`).
+- Availability: urządzenie bez wiadomości dłużej niż timeout (`SIM_AVAILABILITY_ACTIVE_S`=600 s dla zasilanych
+  z sieci, `SIM_AVAILABILITY_PASSIVE_S`=90000 s dla bateryjnych; per urządzenie `availability_timeout_s`)
+  dostaje `{"state":"offline"}` na `…/availability` i wraca po następnej dostarczonej wiadomości.
+  Wartości domyślne wzorowane na Z2M, sprawdź je w jego dokumentacji dla swojej wersji.
+- `zigbee2mqtt/bridge/state` z `{"state":"online"}` (retained). Z profilem `hardware` ustaw
+  `SIM_PUBLISH_BRIDGE=0`, bo ten temat publikuje wtedy prawdziwy Zigbee2MQTT.
+- Log `sim/logs/sim_log.csv`: kolumna `direction` to `up` (raporty), `down` (polecenia i `/get`) albo
+  `bridge` (stan optymistyczny, zmiany availability). Polecenia do czujników są zapisywane jako
+  `command_ignored`. Podsumowanie: `python3 sim/analyze_log.py sim/logs/sim_log.csv`.
+- Testy (bez brokera): `python3 sim/test_simulator.py`.
+- Nie ma `bridge/devices` ani innych tematów `bridge/*`; Telegraf zbiera tylko `zigbee2mqtt/+` (płaskie nazwy).
 - Uwaga: wiadomość o końcu ruchu (`motion_clear`) też może zostać „zgubiona”, wtedy czujnik w Home
   Assistant zostaje w stanie wykrycia. To zamierzone, tak działa niezawodność prawdziwej sieci.
 
@@ -90,7 +111,3 @@ Prawdziwe urządzenia i symulowane współistnieją na tym samym brokerze (inne 
 - Przypnij wersje obrazów (`docker compose images`) i zapisz je w metodologii.
 - Zmień hasła i token w `.env`. Broker MQTT jest otwarty, więc nie wystawiaj go poza sieć lokalną.
 - Format wiadomości odwzorowuje Zigbee2MQTT, ale to przybliżenie. Porównaj z wiadomościami prawdziwych urządzeń.
-
-## Licencja
-
-MIT, patrz [LICENSE](LICENSE).

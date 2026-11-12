@@ -34,6 +34,10 @@ services:
       SIM_BASE_TOPIC: zigbee2mqtt
       SIM_REPORT_INTERVAL: "30"   # sekundy między raportami czujników
       # SIM_SEED: "42"            # odkomentuj dla powtarzalnych przebiegów
+      # SIM_SET_MODE: "optimistic"  # po /set: optimistic (jak domyślnie Zigbee2MQTT) albo confirmed
+      # SIM_AVAILABILITY_ACTIVE_S: "600"     # timeout availability urządzeń zasilanych z sieci [s]
+      # SIM_AVAILABILITY_PASSIVE_S: "90000"  # timeout availability urządzeń bateryjnych [s]
+      # SIM_PUBLISH_BRIDGE: "0"   # ustaw 0 z profilem hardware (bridge/state publikuje wtedy Zigbee2MQTT)
     volumes:
       - ./sim/network_profile.json:/app/network_profile.json:ro
       - ./sim/logs:/logs
